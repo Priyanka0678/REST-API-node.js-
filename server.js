@@ -9,7 +9,7 @@ const baseFintoUrl = 'https://finto.fi/rest/v1/';
 async function fetchOntologyData(ontology, queryParams) {
   const fintoApiUrl = `${baseFintoUrl}${ontology}`;
   try {
-    const response = await axios.get(fintoApiUrl, { params: queryParams });
+    const response = await axios.get(fintoApiUrl, { params: queryParams }); //send all query params to Finto API
     return response.data;
   } catch (error) {
     console.error(`Error fetching data from Finto API for ontology "${ontology}": ${error.message}`);
@@ -29,7 +29,7 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // Check if the 'ontology' parameter is provided
+  // 'ontology' parameter (required)
   const { ontology } = queryParams;
   if (!ontology) {
     res.writeHead(400, { 'Content-Type': 'application/json' });
