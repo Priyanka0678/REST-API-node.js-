@@ -24,14 +24,14 @@ const server = http.createServer(async (req, res) => {
   const parsedUrl = url.parse(req.url, true);
   const queryParams = parsedUrl.query;
 
-  // Ensure the request path is '/search' for individual ontology fetching
+  // '/search' endpoint is required for individual ontology fetching
   if (parsedUrl.pathname !== '/search') {
     res.writeHead(404, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: 'Endpoint does not exist' }));
     return;
   }
 
-  // 'ontology' parameter (required)
+  // 'ontology' parameter required
   const { ontology } = queryParams;
   if (!ontology) {
     res.writeHead(400, { 'Content-Type': 'application/json' });
@@ -39,8 +39,8 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // Validate query parameters (optional step for additional parameters)
-  const validParams = ['ontology', 'query', 'lang', 'labelLang', 'group'];
+  // Validate query parameters 
+  const validParams = ['ontology', 'lang'];
   const invalidParams = Object.keys(queryParams).filter(param => !validParams.includes(param));
   if (invalidParams.length > 0) {
     res.writeHead(400, { 'Content-Type': 'application/json' });
