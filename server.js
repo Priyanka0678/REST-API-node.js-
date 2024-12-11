@@ -1,3 +1,5 @@
+//http://localhost:3000/search?ontology=koko
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 const http = require('http');
 const url = require('url');
 const axios = require('axios');
@@ -9,11 +11,11 @@ const baseFintoUrl = 'https://finto.fi/rest/v1/';
 async function fetchOntologyData(ontology, queryParams) {
   const fintoApiUrl = `${baseFintoUrl}${ontology}`;
   try {
-    const response = await axios.get(fintoApiUrl, { params: queryParams }); //send all query params to Finto API
+    const response = await axios.get(fintoApiUrl, { params: queryParams }); // Send all query params to Finto API
     return response.data;
   } catch (error) {
     console.error(`Error fetching data from Finto API for ontology "${ontology}": ${error.message}`);
-    throw new Error('Failed to fetch data from Finto API');
+    throw new Error('Invalid ontology parameter provided to Finto API');
   }
 }
 
@@ -37,13 +39,22 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // Validate query parameters (optional step for additional parameters)
+  const validParams = ['ontology', 'query', 'lang', 'labelLang', 'group'];
+  const invalidParams = Object.keys(queryParams).filter(param => !validParams.includes(param));
+  if (invalidParams.length > 0) {
+    res.writeHead(400, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: `Invalid parameter(s): ${invalidParams.join(', ')}` }));
+    return;
+  }
+
   try {
     // Fetch data for the specified ontology
     const ontologyData = await fetchOntologyData(ontology, queryParams);
     res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify(ontologyData, null, 2)); 
+    res.end(JSON.stringify(ontologyData, null, 2));
   } catch (error) {
-    res.writeHead(500, { 'Content-Type': 'application/json' });
+    res.writeHead(400, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ error: error.message }));
   }
 });
@@ -53,3 +64,4 @@ const PORT = 3000;
 server.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
+
